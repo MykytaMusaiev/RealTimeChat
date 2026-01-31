@@ -8,6 +8,18 @@ import { format } from "date-fns"
 import { useParams, useRouter } from "next/navigation"
 import { use, useEffect, useRef, useState } from "react"
 
+type Message = {
+  id: string
+  sender: string
+  text: string
+  timestamp: string
+}
+
+type MessagesResponse = {
+  messages: Message[]
+}
+
+
 function formatTimeRemaining(seconds: number) {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
@@ -60,7 +72,7 @@ const Page = () => {
     return () => clearInterval(interval)
   }, [timeRemaining, router])
 
-  const { data: messages, refetch } = useQuery({
+  const { data: messages, refetch } = useQuery<MessagesResponse>({
     queryKey: ["messages", roomId],
     queryFn: async () => {
       const res = await client.messages.get({ query: { roomId } })
@@ -126,8 +138,8 @@ const Page = () => {
             <span className="text-xs text-zinc-500 uppercase">Self-Destruct</span>
             <span
               className={`text-sm font-bold flex items-center gap-2 ${timeRemaining !== null && timeRemaining < 60
-                  ? "text-red-500"
-                  : "text-amber-500"
+                ? "text-red-500"
+                : "text-amber-500"
                 }`}
             >
               {timeRemaining !== null ? formatTimeRemaining(timeRemaining) : "--:--"}
